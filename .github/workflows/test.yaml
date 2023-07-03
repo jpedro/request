@@ -1,4 +1,4 @@
-name: Tests
+name: Test
 
 on:
   push:
@@ -21,3 +21,7 @@ jobs:
         go test -coverprofile cover.out -v ./...
         go tool cover -func cover.out
         # go test -v -covermode=count -coverprofile=coverage.out
+
+    - name: Go install
+      run: |
+        go install

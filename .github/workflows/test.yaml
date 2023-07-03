@@ -18,4 +18,6 @@ jobs:
 
     - name: Run tests
       run: |
-        go test ./... -v
+        go test -coverprofile cover.out -v ./...
+        go tool cover -func cover.out
+        # go test -v -covermode=count -coverprofile=coverage.out

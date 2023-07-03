@@ -17,8 +17,12 @@ import (
 )
 
 func main() {
-	req := request.Get("https://example.com/")
-	req.SetHeader("X-Foo", "bar").SetParam("baz", "qux")
+	req := request.Get("https://example.com/").
+		UsesJson().
+		SetPayload("some stuff").
+		SetHeader("X-Foo", "bar").
+		SetParam("baz", "qux").
+		SetTimeout(1)
 
 	res, err := req.Run()
 	if err != nil {
@@ -26,6 +30,6 @@ func main() {
 	}
 
 	fmt.Printf("Status code: %d\n", res.StatusCode)
-	fmt.Printf("Content length: %d bytes\n", len(res.Body))
+	fmt.Printf("Body length: %d bytes\n", len(res.Body))
 }
 ```

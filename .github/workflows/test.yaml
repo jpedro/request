@@ -16,7 +16,7 @@ jobs:
     - name: Install go
       uses: actions/setup-go@v4
 
-    - name: Run tests
+    - name: Go test
       run: |
         go test -coverprofile cover.out -v ./...
         go tool cover -func cover.out
@@ -25,3 +25,5 @@ jobs:
     - name: Go install
       run: |
         go install
+        ls -la $GOPATH
+        ls -la $GOROOT

@@ -147,3 +147,20 @@ func TestRequestDelete(t *testing.T) {
 	}
 	fmt.Println("Deleted payload:", data)
 }
+
+func TestRequest404(t *testing.T) {
+	url := "https://dummyjson.com/404"
+	req := Get(url)
+
+	res, err := req.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	statusCode := res.StatusCode
+	if statusCode != 404 {
+		t.Errorf("Failed to get a 404: %d\n", statusCode)
+	}
+
+	fmt.Println("Got status code:", res.StatusCode)
+}

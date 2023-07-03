@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v3
 
     - name: Install go
-      uses: actions/setup-go
+      uses: actions/setup-go@v4
 
     - name: Run tests
       run: |

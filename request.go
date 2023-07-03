@@ -90,7 +90,7 @@ func (r *Request) SetParam(key, val string) *Request {
 
 func (r *Request) SetParams(values map[string]string) *Request {
 	for key, val := range values {
-		r.Params[key] = val
+		r.SetParam(key, val)
 	}
 
 	return r
@@ -117,15 +117,16 @@ func (r *Request) GetFullUrl() string {
 	return r.Url + "?" + r.buildQuery()
 }
 
-func (r *Request) Run() (res *Response, err error) {
-	var request *http.Request
+func (r *Request) Run() (*Response, error) {
+	var err error
+	var req *http.Request
 
 	switch r.Method {
 	case http.MethodPost, http.MethodPut:
 		reader := bytes.NewBuffer(r.Payload)
-		request, err = http.NewRequest(r.Method, r.GetFullUrl(), reader)
+		req, err = http.NewRequest(r.Method, r.GetFullUrl(), reader)
 	default:
-		request, err = http.NewRequest(r.Method, r.GetFullUrl(), nil)
+		req, err = http.NewRequest(r.Method, r.GetFullUrl(), nil)
 	}
 
 	if err != nil {
@@ -133,38 +134,39 @@ func (r *Request) Run() (res *Response, err error) {
 	}
 
 	for key, val := range r.Headers {
-		request.Header.Set(key, val)
+		req.Header.Set(key, val)
 	}
 
 	client := http.Client{
 		Timeout: time.Second * time.Duration(r.Timeout),
 	}
 
-	response, err := client.Do(request)
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
 
 	body := []byte{}
 	if res.Body != nil {
-		defer response.Body.Close()
-		body, err = io.ReadAll(response.Body)
+		defer res.Body.Close()
+		body, err = io.ReadAll(res.Body)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	headers := map[string]any{}
-	for key, val := range response.Header {
+	for key, val := range res.Header {
 		headers[key] = val
 	}
 
-	res.Cookies = response.Cookies()
-	res.StatusCode = response.StatusCode
-	res.Headers = headers
-	res.Body = body
+	response := &Response{}
+	response.StatusCode = res.StatusCode
+	response.Headers = headers
+	response.Cookies = res.Cookies()
+	response.Body = body
 
-	return res, nil
+	return response, nil
 }
 
 func (r *Response) GetJson() (any, error) {

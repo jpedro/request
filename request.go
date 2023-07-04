@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -87,8 +88,8 @@ func (r *Request) SetPayload(payload string) *Request {
 func (r *Request) buildQuery() string {
 	values := []string{}
 	for key, val := range r.Params {
-		// values = append(values, key+"="+url.QueryEscape(val))
-		values = append(values, key+"="+val)
+		values = append(values, key+"="+url.QueryEscape(val))
+		// values = append(values, key+"="+val)
 	}
 
 	return strings.Join(values, "&")

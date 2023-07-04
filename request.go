@@ -84,7 +84,7 @@ func (r *Request) SetPayload(payload string) *Request {
 	return r
 }
 
-// Builds the fully HTTP URL with the query string appended
+// Builds the query string
 func (r *Request) buildQuery() string {
 	values := []string{}
 	for key, val := range r.Params {

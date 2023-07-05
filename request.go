@@ -12,6 +12,7 @@ import (
 
 const (
 	HeaderContentType     = "Content-Type"
+	HeaderAccept          = "Accept"
 	HeaderContentTypeJson = "application/json"
 	HeaderAuthorization   = "Authorization"
 )
@@ -66,8 +67,21 @@ func Delete(url string) *Request {
 	return NewRequest(url, http.MethodDelete)
 }
 
-// Sets the "Content-Type" header to "application/json"
+// Sets both the "Accept" and the "Content-Type" header to "application/json"
 func (r *Request) UsesJson() *Request {
+	r.SendsJson()
+	r.AcceptsJson()
+	return r
+}
+
+// Sets the "Accept" header to "application/json"
+func (r *Request) AcceptsJson() *Request {
+	r.SetHeader(HeaderAccept, HeaderContentTypeJson)
+	return r
+}
+
+// Sets the "Content-Type" header to "application/json"
+func (r *Request) SendsJson() *Request {
 	r.SetHeader(HeaderContentType, HeaderContentTypeJson)
 	return r
 }

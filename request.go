@@ -47,27 +47,27 @@ func NewRequest(url, method string) *Request {
 	return r
 }
 
-// Creates a new GET HTTP request
+// Creates a new GET HTTP request.
 func Get(url string) *Request {
 	return NewRequest(url, http.MethodGet)
 }
 
-// Creates a new POST HTTP request
+// Creates a new POST HTTP request.
 func Post(url string) *Request {
 	return NewRequest(url, http.MethodPost)
 }
 
-// Creates a new PUT HTTP request
+// Creates a new PUT HTTP request.
 func Put(url string) *Request {
 	return NewRequest(url, http.MethodPut)
 }
 
-// Creates a new DELETE HTTP request
+// Creates a new DELETE HTTP request.
 func Delete(url string) *Request {
 	return NewRequest(url, http.MethodDelete)
 }
 
-// Builds the query string
+// Encodes fields.
 func EncodeFields(fields map[string]string) string {
 	values := []string{}
 	for key, val := range fields {
@@ -78,44 +78,44 @@ func EncodeFields(fields map[string]string) string {
 	return strings.Join(values, "&")
 }
 
-// Sets both the "Accept" and the "Content-Type" header to "application/json"
+// Sets both the "Accept" and the "Content-Type" header to "application/json".
 func (r *Request) UsesJson() *Request {
 	r.SendsJson()
 	r.AcceptsJson()
 	return r
 }
 
-// Sets the "Accept" header to "application/json"
+// Sets the "Accept" header to "application/json".
 func (r *Request) AcceptsJson() *Request {
 	r.SetHeader(HeaderAccept, HeaderContentTypeJson)
 	return r
 }
 
-// Sets the "Content-Type" header to "application/json"
+// Sets the "Content-Type" header to "application/json".
 func (r *Request) SendsJson() *Request {
 	r.SetHeader(HeaderContentType, HeaderContentTypeJson)
 	return r
 }
 
-// Sets the HTTP request timeout in seconds
+// Sets the HTTP request timeout in seconds.
 func (r *Request) SetTimeout(seconds int64) *Request {
 	r.Timeout = seconds
 	return r
 }
 
-// Sets the HTTP request payload
+// Sets the HTTP request payload.
 func (r *Request) SetPayload(payload string) *Request {
 	r.Payload = []byte(payload)
 	return r
 }
 
-// Set a new query string parameter
+// Set a new query string parameter.
 func (r *Request) SetParam(key, val string) *Request {
 	r.Params[key] = val
 	return r
 }
 
-// Set new query string parameters from a map
+// Set new query string parameters from a map.
 func (r *Request) SetParams(values map[string]string) *Request {
 	for key, val := range values {
 		r.SetParam(key, val)
@@ -124,13 +124,13 @@ func (r *Request) SetParams(values map[string]string) *Request {
 	return r
 }
 
-// Set a new HTTP header
+// Set a new HTTP header.
 func (r *Request) SetHeader(key, val string) *Request {
 	r.Headers[key] = val
 	return r
 }
 
-// Set HTTP headers from a map
+// Set HTTP headers from a map.
 func (r *Request) SetHeaders(values map[string]string) *Request {
 	for key, val := range values {
 		r.SetHeader(key, val)
@@ -139,7 +139,7 @@ func (r *Request) SetHeaders(values map[string]string) *Request {
 	return r
 }
 
-// Return the fully assembled URL with the query string appended
+// Return the fully assembled URL with the query string appended.
 func (r *Request) GetFullUrl() string {
 	if len(r.Params) == 0 {
 		return r.Url
@@ -148,7 +148,7 @@ func (r *Request) GetFullUrl() string {
 	return r.Url + "?" + EncodeFields(r.Params)
 }
 
-// Runs a request and returns a response
+// Runs a request and returns a response.
 func (r *Request) Run() (*Response, error) {
 	var err error
 	var req *http.Request
@@ -201,7 +201,7 @@ func (r *Request) Run() (*Response, error) {
 	return response, nil
 }
 
-// Returned the response body parsed as JSON
+// Returned the response body parsed as JSON.
 func (r *Response) GetJson() (any, error) {
 	var data any
 	err := json.Unmarshal(r.Body, &data)

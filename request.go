@@ -67,6 +67,17 @@ func Delete(url string) *Request {
 	return NewRequest(url, http.MethodDelete)
 }
 
+// Builds the query string
+func EncodeFields(fields map[string]string) string {
+	values := []string{}
+	for key, val := range fields {
+		// values = append(values, key+"="+url.QueryEscape(fmt.Sprintf("%v", val)))
+		values = append(values, key+"="+url.QueryEscape(val))
+	}
+
+	return strings.Join(values, "&")
+}
+
 // Sets both the "Accept" and the "Content-Type" header to "application/json"
 func (r *Request) UsesJson() *Request {
 	r.SendsJson()
@@ -96,17 +107,6 @@ func (r *Request) SetTimeout(seconds int64) *Request {
 func (r *Request) SetPayload(payload string) *Request {
 	r.Payload = []byte(payload)
 	return r
-}
-
-// Builds the query string
-func (r *Request) buildQuery() string {
-	values := []string{}
-	for key, val := range r.Params {
-		values = append(values, key+"="+url.QueryEscape(val))
-		// values = append(values, key+"="+val)
-	}
-
-	return strings.Join(values, "&")
 }
 
 // Set a new query string parameter
@@ -145,7 +145,7 @@ func (r *Request) GetFullUrl() string {
 		return r.Url
 	}
 
-	return r.Url + "?" + r.buildQuery()
+	return r.Url + "?" + EncodeFields(r.Params)
 }
 
 // Runs a request and returns a response

@@ -1,8 +1,11 @@
-name: Test
+name: Go test
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
+    inputs:
+      example:
+        type: boolean
+        description: Does this repo has an "example/" to run?
 
 jobs:
   test:
@@ -23,6 +26,7 @@ jobs:
         # go test -v -covermode=count -coverprofile=coverage.out
 
     - name: Go example
+      if: inputs.example == 'true'
       run: |
         cd example
         go run .

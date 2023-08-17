@@ -19,10 +19,10 @@ import (
 func main() {
 	req := request.Get("https://example.com/").
 		UsesJson().
-		SetPayload("some stuff").
-		SetHeader("X-Foo", "bar").
-		SetParam("baz", "qux").
-		SetTimeout(1)
+		WithPayload("some stuff").
+		WithHeader("X-Foo", "bar").
+		WithParam("baz", "qux").
+		WithTimeout(1)
 
 	res, err := req.Run()
 	if err != nil {

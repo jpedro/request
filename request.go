@@ -87,53 +87,53 @@ func (r *Request) UsesJson() *Request {
 
 // Sets the "Accept" header to "application/json".
 func (r *Request) AcceptsJson() *Request {
-	r.SetHeader(HeaderAccept, HeaderContentTypeJson)
+	r.WithHeader(HeaderAccept, HeaderContentTypeJson)
 	return r
 }
 
 // Sets the "Content-Type" header to "application/json".
 func (r *Request) SendsJson() *Request {
-	r.SetHeader(HeaderContentType, HeaderContentTypeJson)
+	r.WithHeader(HeaderContentType, HeaderContentTypeJson)
 	return r
 }
 
 // Sets the HTTP request timeout in seconds.
-func (r *Request) SetTimeout(seconds int64) *Request {
+func (r *Request) WithTimeout(seconds int64) *Request {
 	r.Timeout = seconds
 	return r
 }
 
 // Sets the HTTP request payload.
-func (r *Request) SetPayload(payload string) *Request {
+func (r *Request) WithPayload(payload string) *Request {
 	r.Payload = []byte(payload)
 	return r
 }
 
 // Set a new query string parameter.
-func (r *Request) SetParam(key, val string) *Request {
+func (r *Request) WithParam(key, val string) *Request {
 	r.Params[key] = val
 	return r
 }
 
 // Set new query string parameters from a map.
-func (r *Request) SetParams(values map[string]string) *Request {
+func (r *Request) WithParams(values map[string]string) *Request {
 	for key, val := range values {
-		r.SetParam(key, val)
+		r.WithParam(key, val)
 	}
 
 	return r
 }
 
 // Set a new HTTP header.
-func (r *Request) SetHeader(key, val string) *Request {
+func (r *Request) WithHeader(key, val string) *Request {
 	r.Headers[key] = val
 	return r
 }
 
 // Set HTTP headers from a map.
-func (r *Request) SetHeaders(values map[string]string) *Request {
+func (r *Request) WithHeaders(values map[string]string) *Request {
 	for key, val := range values {
-		r.SetHeader(key, val)
+		r.WithHeader(key, val)
 	}
 
 	return r
@@ -202,7 +202,7 @@ func (r *Request) Run() (*Response, error) {
 }
 
 // Returned the response body parsed as JSON.
-func (r *Response) GetJson() (any, error) {
+func (r *Response) Json() (any, error) {
 	var data any
 	err := json.Unmarshal(r.Body, &data)
 	if err != nil {

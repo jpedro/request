@@ -13,7 +13,7 @@ func TestRequestGet(t *testing.T) {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to load products: %s\n", err)
 	}
@@ -22,10 +22,10 @@ func TestRequestGet(t *testing.T) {
 	fmt.Println("data:", len(products))
 }
 
-func TestRequestSetParams(t *testing.T) {
+func TestRequestWithParams(t *testing.T) {
 	url := "https://dummyjson.com/products/search"
 	req := Get(url)
-	req.SetParams(map[string]string{
+	req.WithParams(map[string]string{
 		"q": "phone",
 	})
 	res, err := req.Run()
@@ -33,7 +33,7 @@ func TestRequestSetParams(t *testing.T) {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to load products: %s\n", err)
 	}
@@ -42,10 +42,10 @@ func TestRequestSetParams(t *testing.T) {
 	fmt.Println("data:", len(products))
 }
 
-func TestRequestSetHeaders(t *testing.T) {
+func TestRequestWithHeaders(t *testing.T) {
 	url := "https://dummyjson.com/products/search"
 	req := Get(url)
-	req.SetHeaders(map[string]string{
+	req.WithHeaders(map[string]string{
 		"X-1": "Something something",
 	})
 	res, err := req.Run()
@@ -53,7 +53,7 @@ func TestRequestSetHeaders(t *testing.T) {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to load products: %s\n", err)
 	}
@@ -64,13 +64,13 @@ func TestRequestSetHeaders(t *testing.T) {
 
 func TestRequestTimeout(t *testing.T) {
 	url := "https://dummyjson.com/products"
-	req := Get(url).SetTimeout(0)
+	req := Get(url).WithTimeout(0)
 	res, err := req.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to load products: %s\n", err)
 	}
@@ -89,14 +89,14 @@ func TestRequestPost(t *testing.T) {
 	`
 
 	req.UsesJson()
-	req.SetPayload(payload)
+	req.WithPayload(payload)
 
 	res, err := req.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to post product: %s\n", err)
 	}
@@ -113,14 +113,14 @@ func TestRequestPut(t *testing.T) {
 	`
 
 	req.UsesJson()
-	req.SetPayload(payload)
+	req.WithPayload(payload)
 
 	res, err := req.Run()
 	if err != nil {
 		panic(err)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to update product: %s\n", err)
 	}
@@ -141,7 +141,7 @@ func TestRequestDelete(t *testing.T) {
 		t.Errorf("Failed to delete product statusCode: %d\n", statusCode)
 	}
 
-	data, err := res.GetJson()
+	data, err := res.Json()
 	if err != nil {
 		t.Errorf("Failed to delete product payload: %s\n", err)
 	}

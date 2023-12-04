@@ -8,12 +8,12 @@ import (
 )
 
 func main() {
+	// Payload("some stuff").
+	// req := request.Get("https://dummyjson.com/products/1").
 	req := request.Get("https://example.com/").
-		UsesJson().
-		WithPayload("some stuff").
-		WithHeader("X-Foo", "bar").
-		WithParam("baz", "qux").
-		WithTimeout(1)
+		Header("X-Foo", "bar").
+		Param("baz", "qux").
+		Timeout(1)
 
 	res, err := req.Run()
 	if err != nil {
@@ -23,7 +23,11 @@ func main() {
 	fmt.Printf("\033[32;1mStatus code:\033[0m %d\n", res.StatusCode)
 	fmt.Printf("\033[32;1mBody length:\033[0m %d bytes\n", len(res.Body))
 	fmt.Printf("\033[32;1mBody sample:\033[0m\n")
-	lines := strings.Split(string(res.Body[0:1000]), "\n")
+	max := len(res.Body)
+	if max > 500 {
+		max = 500
+	}
+	lines := strings.Split(string(res.Body[0:max]), "\n")
 	for i, line := range lines {
 		fmt.Printf("\033[2m %5d │\033[0m %s\033[0m\n", i, line)
 	}

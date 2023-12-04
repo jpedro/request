@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -14,35 +15,38 @@ const (
 	HeaderContentType     = "Content-Type"
 	HeaderAccept          = "Accept"
 	HeaderContentTypeJson = "application/json"
+	HeaderContentTypeText = "text/plain"
 	HeaderAuthorization   = "Authorization"
+
+	// AcceptsJson = "json"
 )
+
+// var (
+// 	Accepts = map[string]map[string]string{
+// 		"json": {
+// 			"Content-type": "application/json",
+// 		},
+// 	}
+// )
 
 // The request struct
 type Request struct {
-	Url     string
-	Method  string
-	Payload []byte
-	Headers map[string]string
-	Params  map[string]string
-	Timeout int64
-}
-
-// The response struct
-type Response struct {
-	StatusCode int
-	Body       []byte
-	Headers    map[string]any
-	Cookies    []*http.Cookie
+	url     string
+	method  string
+	payload []byte
+	headers map[string]string
+	params  map[string]string
+	timeout int64
 }
 
 // Creates a new HTTP request
 func NewRequest(url, method string) *Request {
 	r := &Request{}
-	r.Url = url
-	r.Method = method
-	r.Headers = map[string]string{}
-	r.Params = map[string]string{}
-	r.Timeout = 2
+	r.url = url
+	r.method = method
+	r.headers = map[string]string{}
+	r.params = map[string]string{}
+	r.timeout = 2
 
 	return r
 }
@@ -78,74 +82,100 @@ func EncodeFields(fields map[string]string) string {
 	return strings.Join(values, "&")
 }
 
-// Sets both the "Accept" and the "Content-Type" header to "application/json".
-func (r *Request) UsesJson() *Request {
-	r.SendsJson()
-	r.AcceptsJson()
-	return r
-}
+// // Sets both the "Accept" and the "Content-Type" header to "application/json".
+// func (r *Request) UsesJson() *Request {
+// 	// r.SendsJson()
+// 	r.AcceptsJson()
+// 	return r
+// }
 
-// Sets the "Accept" header to "application/json".
-func (r *Request) AcceptsJson() *Request {
-	r.WithHeader(HeaderAccept, HeaderContentTypeJson)
-	return r
-}
+// // Sets the "Accept" header to "application/json".
+// func (r *Request) AcceptsJson() *Request {
+// 	r.WithHeader(HeaderAccept, HeaderContentTypeJson)
+// 	return r
+// }
 
 // Sets the "Content-Type" header to "application/json".
-func (r *Request) SendsJson() *Request {
-	r.WithHeader(HeaderContentType, HeaderContentTypeJson)
+func (r *Request) Json(data map[string]any) *Request {
+	r.Header(HeaderContentType, HeaderContentTypeJson)
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		panic(err)
+	}
+
+	r.payload = bytes
+
+	return r
+}
+
+func (r *Request) Text(data string) *Request {
+	r.Header(HeaderContentType, HeaderContentTypeText)
+	r.payload = []byte(data)
 	return r
 }
 
 // Sets the HTTP request timeout in seconds.
-func (r *Request) WithTimeout(seconds int64) *Request {
-	r.Timeout = seconds
+func (r *Request) Timeout(seconds int64) *Request {
+	r.timeout = seconds
 	return r
 }
 
 // Sets the HTTP request payload.
-func (r *Request) WithPayload(payload string) *Request {
-	r.Payload = []byte(payload)
-	return r
+// func (r *Request) Payload(payload []byte) *Request {
+func (r *Request) Payload(data any) *Request {
+
+	switch value := data.(type) {
+	case string:
+		return r.Text(value)
+	case []byte:
+		r.payload = value
+		return r
+	case map[string]any:
+		return r.Json(value)
+	default:
+		log.Fatalf("I don't know how to handle this data: %#v", data)
+		panic("And... we stop here")
+	}
 }
 
 // Set a new query string parameter.
-func (r *Request) WithParam(key, val string) *Request {
-	r.Params[key] = val
+func (r *Request) Param(key, val string) *Request {
+	r.params[key] = val
 	return r
 }
 
 // Set new query string parameters from a map.
-func (r *Request) WithParams(values map[string]string) *Request {
+func (r *Request) Params(values map[string]string) *Request {
 	for key, val := range values {
-		r.WithParam(key, val)
+		r.Param(key, val)
 	}
 
 	return r
 }
 
 // Set a new HTTP header.
-func (r *Request) WithHeader(key, val string) *Request {
-	r.Headers[key] = val
+func (r *Request) Header(key, val string) *Request {
+	r.headers[key] = val
 	return r
 }
 
 // Set HTTP headers from a map.
-func (r *Request) WithHeaders(values map[string]string) *Request {
+func (r *Request) Headers(values map[string]string) *Request {
 	for key, val := range values {
-		r.WithHeader(key, val)
+		r.Header(key, val)
 	}
 
 	return r
 }
 
 // Return the fully assembled URL with the query string appended.
-func (r *Request) GetFullUrl() string {
-	if len(r.Params) == 0 {
-		return r.Url
+func (r *Request) FullUrl() string {
+	if len(r.params) == 0 {
+		return r.url
 	}
 
-	return r.Url + "?" + EncodeFields(r.Params)
+	return r.url + "?" + EncodeFields(r.params)
 }
 
 // Runs a request and returns a response.
@@ -153,24 +183,26 @@ func (r *Request) Run() (*Response, error) {
 	var err error
 	var req *http.Request
 
-	switch r.Method {
+	url := r.FullUrl()
+
+	switch r.method {
 	case http.MethodPost, http.MethodPut:
-		reader := bytes.NewBuffer(r.Payload)
-		req, err = http.NewRequest(r.Method, r.GetFullUrl(), reader)
+		reader := bytes.NewBuffer(r.payload)
+		req, err = http.NewRequest(r.method, url, reader)
 	default:
-		req, err = http.NewRequest(r.Method, r.GetFullUrl(), nil)
+		req, err = http.NewRequest(r.method, url, nil)
 	}
 
 	if err != nil {
 		return nil, err
 	}
 
-	for key, val := range r.Headers {
+	for key, val := range r.headers {
 		req.Header.Set(key, val)
 	}
 
 	client := http.Client{
-		Timeout: time.Second * time.Duration(r.Timeout),
+		Timeout: time.Second * time.Duration(r.timeout),
 	}
 
 	res, err := client.Do(req)
@@ -199,15 +231,4 @@ func (r *Request) Run() (*Response, error) {
 	response.Body = body
 
 	return response, nil
-}
-
-// Returned the response body parsed as JSON.
-func (r *Response) Json() (any, error) {
-	var data any
-	err := json.Unmarshal(r.Body, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
 }

@@ -5,8 +5,12 @@ import (
 	"testing"
 )
 
+const (
+	TEST_URL = "https://dummyjson.com"
+)
+
 func TestRequestGet(t *testing.T) {
-	url := "https://dummyjson.com/products"
+	url := TEST_URL + "/products"
 	req := Get(url)
 	res, err := req.Run()
 	if err != nil {
@@ -22,10 +26,10 @@ func TestRequestGet(t *testing.T) {
 	fmt.Println("data:", len(products))
 }
 
-func TestRequestWithParams(t *testing.T) {
-	url := "https://dummyjson.com/products/search"
+func TestRequestParams(t *testing.T) {
+	url := TEST_URL + "/products/search"
 	req := Get(url)
-	req.WithParams(map[string]string{
+	req.Params(map[string]string{
 		"q": "phone",
 	})
 	res, err := req.Run()
@@ -42,10 +46,10 @@ func TestRequestWithParams(t *testing.T) {
 	fmt.Println("data:", len(products))
 }
 
-func TestRequestWithHeaders(t *testing.T) {
-	url := "https://dummyjson.com/products/search"
+func TestRequestHeaders(t *testing.T) {
+	url := TEST_URL + "/products/search"
 	req := Get(url)
-	req.WithHeaders(map[string]string{
+	req.Headers(map[string]string{
 		"X-1": "Something something",
 	})
 	res, err := req.Run()
@@ -63,8 +67,8 @@ func TestRequestWithHeaders(t *testing.T) {
 }
 
 func TestRequestTimeout(t *testing.T) {
-	url := "https://dummyjson.com/products"
-	req := Get(url).WithTimeout(0)
+	url := TEST_URL + "/products"
+	req := Get(url).Timeout(0)
 	res, err := req.Run()
 	if err != nil {
 		panic(err)
@@ -79,18 +83,61 @@ func TestRequestTimeout(t *testing.T) {
 	fmt.Println("data:", len(products))
 }
 
-func TestRequestPost(t *testing.T) {
-	url := "https://dummyjson.com/products/add"
+func TestRequestPostJson(t *testing.T) {
+	url := TEST_URL + "/products/add"
 	req := Post(url)
+
+	payload := map[string]any{
+		"title": "BMW Pencil as JSON",
+	}
+
+	req.Payload(payload)
+	res, err := req.Run()
+	if err != nil {
+		panic(err)
+	}
+
+	data, err := res.Json()
+	if err != nil {
+		t.Errorf("Failed to post product: %s\n", err)
+	}
+	fmt.Println("Created product:", data)
+}
+
+func TestRequestPostText(t *testing.T) {
+	url := TEST_URL + "/products/add"
+	req := Post(url)
+
 	payload := `
 	{
-		"title": "BMW Pencil"
+		"title": "BMW Pencil as JSON"
 	}
 	`
 
-	req.UsesJson()
-	req.WithPayload(payload)
+	req.Payload(payload)
+	res, err := req.Run()
+	if err != nil {
+		panic(err)
+	}
 
+	data, err := res.Json()
+	if err != nil {
+		t.Errorf("Failed to post product: %s\n", err)
+	}
+	fmt.Println("Created product:", data)
+}
+
+func TestRequestPostBytes(t *testing.T) {
+	url := TEST_URL + "/products/add"
+	req := Post(url)
+
+	payload := []byte(`
+	{
+		"title": "BMW Pencil as bytes"
+	}
+	`)
+
+	req.Payload(payload)
 	res, err := req.Run()
 	if err != nil {
 		panic(err)
@@ -104,16 +151,13 @@ func TestRequestPost(t *testing.T) {
 }
 
 func TestRequestPut(t *testing.T) {
-	url := "https://dummyjson.com/products/1"
-	req := Put(url)
-	payload := `
-	{
-		"title": "UPDATED TITLE"
+	url := TEST_URL + "/products/1"
+	payload := map[string]any{
+		"title": "UPDATED TITLE",
 	}
-	`
 
-	req.UsesJson()
-	req.WithPayload(payload)
+	req := Put(url)
+	req.Payload(payload)
 
 	res, err := req.Run()
 	if err != nil {
@@ -128,7 +172,7 @@ func TestRequestPut(t *testing.T) {
 }
 
 func TestRequestDelete(t *testing.T) {
-	url := "https://dummyjson.com/products/1"
+	url := TEST_URL + "/products/1"
 	req := Delete(url)
 
 	res, err := req.Run()
@@ -149,7 +193,7 @@ func TestRequestDelete(t *testing.T) {
 }
 
 func TestRequest404(t *testing.T) {
-	url := "https://dummyjson.com/404"
+	url := TEST_URL + "/404"
 	req := Get(url)
 
 	res, err := req.Run()

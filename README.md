@@ -17,14 +17,13 @@ import (
 )
 
 func main() {
-	req := request.Get("https://example.com/").
-		UsesJson().
-		WithPayload("some stuff").
-		WithHeader("X-Foo", "bar").
-		WithParam("baz", "qux").
-		WithTimeout(1)
+	res, err := request.Get("https://example.com/").
+		Payload("some stuff").
+		Header("X-Foo", "bar").
+		Param("baz", "qux").
+		Timeout(1).
+    Run()
 
-	res, err := req.Run()
 	if err != nil {
 		panic(err)
 	}

@@ -20,7 +20,7 @@ Example
 			Header("X-Foo", "bar").
 			Param("baz", "qux").
 			Timeout(1).
-		Run()
+			Run()
 
 		if err != nil {
 			panic(err)

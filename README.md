@@ -4,7 +4,6 @@
 
 A fluent wrapper for [`net/http`](https://pkg.go.dev/net/http).
 
-
 ## Example
 
 ```go
@@ -22,7 +21,7 @@ func main() {
 		Header("X-Foo", "bar").
 		Param("baz", "qux").
 		Timeout(1).
-    Run()
+		Run()
 
 	if err != nil {
 		panic(err)
